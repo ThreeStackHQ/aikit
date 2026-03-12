@@ -83,5 +83,18 @@ export const costBudgets = pgTable("cost_budgets", {
   currentMonthSpend: numeric("current_month_spend", { precision: 10, scale: 8 }).notNull().default("0"),
   alertThreshold: numeric("alert_threshold", { precision: 5, scale: 2 }).notNull().default("0.8"), // 80%
   lastResetAt: timestamp("last_reset_at").notNull().defaultNow(),
+  alertSentAt: timestamp("alert_sent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Provider Settings — workspace-scoped LLM provider API keys
+export const providerSettings = pgTable("provider_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+  provider: providerEnum("provider").notNull(),
+  apiKey: text("api_key").notNull(), // stored encrypted (AES-256-GCM, base64)
+  apiKeyIv: text("api_key_iv").notNull(), // base64 IV for decryption
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
